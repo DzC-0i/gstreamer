@@ -92,3 +92,9 @@ foreach(SUB_DIR ${SUB_DIRS2})
         endforeach()
     endif()
 endforeach()
+
+target_link_libraries(playback-tutorial-3 PUBLIC ${GSTREAMER_AUDIO_LIBRARIES})
+target_include_directories(playback-tutorial-3 PUBLIC ${GSTREAMER_AUDIO_INCLUDE_DIRS})
+
+# 添加数学库
+target_link_libraries(playback-tutorial-3_video PUBLIC m)
