@@ -52,10 +52,15 @@ int main(int argc, char *argv[])
     /* Set the URI to play */
     g_object_set(data.playbin, "uri", "https://gstreamer.freedesktop.org/data/media/sintel_cropped_multilingual.webm", NULL);
 
-    /* Set flags to show Audio and Video but ignore Subtitles */
+    /* Set flags to show Audio and Video but ignore Subtitles
+     * Complete video track status output
+     * 1 video stream(s), 3 audio stream(s), 0 text stream(s)
+     */
+
     g_object_get(data.playbin, "flags", &flags, NULL);
     flags |= GST_PLAY_FLAG_VIDEO | GST_PLAY_FLAG_AUDIO;
     flags &= ~GST_PLAY_FLAG_TEXT;
+    // flags |= GST_PLAY_FLAG_TEXT;
     g_object_set(data.playbin, "flags", flags, NULL);
 
     /* Set connection speed. This will affect some internal decisions of playbin */

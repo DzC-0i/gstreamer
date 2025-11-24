@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     GstPad *tee_audio_pad, *tee_video_pad;
     GstPad *queue_audio_pad, *queue_video_pad;
 
-    GstPadTemplate *pad_template = NULL;  // 初始化Pad模板指针为 NULL
+    GstPadTemplate *pad_template = NULL; // 初始化Pad模板指针为 NULL
 
     /* Initialize GStreamer */
     gst_init(&argc, &argv);
@@ -91,31 +91,31 @@ int main(int argc, char *argv[])
     if (!queue_audio_pad)
     {
         g_printerr("Failed to get sink pad of audio_queue\n");
-        goto cleanup;  // 跳转到统一清理逻辑
+        goto cleanup; // 跳转到统一清理逻辑
     }
 
     queue_video_pad = gst_element_get_static_pad(video_queue, "sink");
     if (!queue_video_pad)
     {
         g_printerr("Failed to get sink pad of video_queue\n");
-        goto cleanup;  // 跳转到统一清理逻辑
+        goto cleanup; // 跳转到统一清理逻辑
     }
 
     if (gst_pad_link(tee_audio_pad, queue_audio_pad) != GST_PAD_LINK_OK ||
         gst_pad_link(tee_video_pad, queue_video_pad) != GST_PAD_LINK_OK)
     {
         g_printerr("Tee could not be linked.\n");
-        goto cleanup;  // 优化4：链接失败时，通过统一清理逻辑释放所有资源
+        goto cleanup; // 优化4：链接失败时，通过统一清理逻辑释放所有资源
     }
 
     gst_object_unref(queue_audio_pad);
-    queue_audio_pad = NULL;  // 置 NULL，避免重复释放
+    queue_audio_pad = NULL; // 置 NULL，避免重复释放
     gst_object_unref(queue_video_pad);
-    queue_video_pad = NULL;  // 置 NULL，避免重复释放
+    queue_video_pad = NULL; // 置 NULL，避免重复释放
 
     // Pad 链接成功后，释放 PadTemplate（已无需使用）
     gst_object_unref(pad_template);
-    pad_template = NULL;  // 置 NULL，避免重复释放
+    pad_template = NULL; // 置 NULL，避免重复释放
 
     /* Start playing the pipeline */
     gst_element_set_state(pipeline, GST_STATE_PLAYING);

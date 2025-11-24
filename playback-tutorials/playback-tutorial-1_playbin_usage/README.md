@@ -124,6 +124,45 @@ int main(int argc, char *argv[])
 
 主函数的核心流程：**初始化 → 创建组件 → 配置参数 → 启动播放 → 进入主循环 → 退出释放资源**。
 
+`playbin` 的行为可以通过其 `flags` `属性来改变，flags` 属性可以包含任意组合的 `GstPlayFlags`。
+
+| Flag  | Description |
+| --- | --- |
+| GST_PLAY_FLAG_VIDEO |	启用视频渲染。如果没有设置这个标志，就不会有视频输出。|
+| GST_PLAY_FLAG_AUDIO | 启用音频渲染。如果没有设置这个标志，就不会有音频输出。|
+| GST_PLAY_FLAG_TEXT  | 启用字幕渲染。如果没有设置该标志，视频输出中将不会显示字幕。|
+| GST_PLAY_FLAG_VIS   | 在没有视频流时启用可视化渲染。播放教程6：音频可视化有更详细的介绍。|
+| GST_PLAY_FLAG_DOWNLOAD  | 启用下载模式。如果设置了这个标志，playbin 会尝试下载媒体而不是播放它。|
+| GST_PLAY_FLAG_BUFFERING | 启用缓冲模式。如果设置了这个标志，playbin 会在播放前先缓冲数据，以减少播放时的延迟。|
+| GST_PLAY_FLAG_DEINTERLACE | 如果视频内容是隔行扫描，这个标志会指示播放区在显示视频前将其去交错。|
+
+在这里，为了演示目的，启用了音频和视频 并关闭字幕，其余旗帜保持默认状态 值（这也是为什么我们用来读取当前的旗标值的原因 `g_object_get（）` 然后再用 `g_object_set（）` 覆盖）。
+
+```c
+/* Set connection speed. This will affect some internal decisions of playbin */
+g_object_set (data.playbin, "connection-speed", 56, NULL);
+```
+
+这个性质在本例中其实没什么用。 连接速度会告知 `Playbin` 我们网络连接的最大速度，因此，如果服务器中有多个请求媒体版本，`Playbin` 会选择最合适的。这通常与流式协议如 `HLS` 或 `RTSP`。
+
+前面是分布实现的, 也可以在一起统一调用实现 `g_object_set（）`
+
+```c
+g_object_set (data.playbin, "uri", "https://gstreamer.freedesktop.org/data/media/sintel_cropped_multilingual.webm", "flags", flags, "connection-speed", 56, NULL);
+```
+
+为什么 g_object_set（） 最后一个参数需要一个空指针 `NULL`？
+
+这是因为 `g_object_set（）` 函数的参数是一个可变参数列表，最后一个参数必须是 `NULL` 来标记**当前参数列表的结束**。这是 C 语言的一种约定，用于标识参数列表的结束。
+
+```c
+/* Create a GLib Main Loop and set it to run */
+data.main_loop = g_main_loop_new (NULL, FALSE);
+g_main_loop_run (data.main_loop);
+```
+
+将不再手动轮询 `GStreamer` 总线。相反，我们创建一个 `GMainLoop`（GLib 主循环），并设置它运行 `g_main_loop_run（）`。该函数会被阻塞，直到 `g_main_loop_quit（）` 被发布后才会返回。与此同时，它会在适当时间调用我们已注册的回拨：`handle_message `当总线上出现消息时， `handle_keyboard` 用户按下任意键。
+
 ### 3. 流信息解析函数 `analyze_streams`
 
 当播放状态切换到「PLAYING」时，自动调用该函数，解析并打印音视频/字幕流的元信息（如编码格式、语言、比特率）。
@@ -221,6 +260,8 @@ static void analyze_streams(CustomData *data)
 ```
 
 核心逻辑：通过 `g_object_get` 获取流数量，通过 `g_signal_emit_by_name` 触发 `playbin` 的「获取标签」信号，解析并打印元信息。
+
+对于每个流，我们要检索其元数据。元数据以标签形式存储在 `GstTagList` 结构中，该结构是通过名称标识的数据片段列表。与流关联的 `GstTagList` 可以用 `g_signal_emit_by_name（）` 恢复，然后用 `gst_tag_list_get_*` 函数如 `gst_tag_list_get_string（）` 提取单个标签。
 
 
 ### 4. 消息处理函数 `handle_message`

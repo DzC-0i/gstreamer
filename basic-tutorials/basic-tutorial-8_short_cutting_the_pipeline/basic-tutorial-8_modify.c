@@ -37,7 +37,8 @@ static gboolean push_data(CustomData *data)
     /* Create a new empty buffer */
     buffer = gst_buffer_new_and_alloc(CHUNK_SIZE);
 
-    if (!buffer) {  // 新增缓冲区检测
+    if (!buffer)
+    { // 新增缓冲区检测
         g_printerr("Failed to create new buffer.\n");
         return FALSE;
     }
@@ -48,7 +49,8 @@ static gboolean push_data(CustomData *data)
 
     /* Generate some psychodelic waveforms */
     // gst_buffer_map(buffer, &map, GST_MAP_WRITE);
-    if (!gst_buffer_map(buffer, &map, GST_MAP_WRITE)) {  // 新增映射检测
+    if (!gst_buffer_map(buffer, &map, GST_MAP_WRITE))
+    { // 新增映射检测
         g_printerr("Failed to map buffer memory.\n");
         gst_buffer_unref(buffer);
         return FALSE;
@@ -76,7 +78,7 @@ static gboolean push_data(CustomData *data)
     if (ret != GST_FLOW_OK)
     {
         /* We got some error, stop sending data */
-        g_printerr("Failed to push buffer: %s\n", gst_flow_get_name(ret));  // 打印错误原因
+        g_printerr("Failed to push buffer: %s\n", gst_flow_get_name(ret)); // 打印错误原因
         return FALSE;
     }
 
@@ -109,7 +111,7 @@ static void stop_feed(GstElement *source, CustomData *data)
 /* The appsink has received a buffer */
 static GstFlowReturn new_sample(GstElement *sink, CustomData *data)
 {
-    GstSample *sample = NULL;  // 初始化置 NULL，避免野指针
+    GstSample *sample = NULL; // 初始化置 NULL，避免野指针
 
     /* Retrieve the buffer */
     g_signal_emit_by_name(sink, "pull-sample", &sample);
@@ -149,7 +151,7 @@ int main(int argc, char *argv[])
     GstCaps *audio_caps;
     GstBus *bus;
 
-    GstPadTemplate *pad_template = NULL;  // 初始化置 NULL
+    GstPadTemplate *pad_template = NULL; // 初始化置 NULL
 
     /* Initialize custom data structure */
     memset(&data, 0, sizeof(data));
@@ -228,7 +230,7 @@ int main(int argc, char *argv[])
     if (!tee_audio_pad)
     {
         g_printerr("Failed to request audio pad from tee\n");
-        gst_object_unref(pad_template);  // 释放 PadTemplate
+        gst_object_unref(pad_template); // 释放 PadTemplate
         gst_object_unref(data.pipeline);
         return -1;
     }
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
         gst_element_release_request_pad(data.tee, tee_audio_pad);
         gst_object_unref(tee_audio_pad);
 
-        gst_object_unref(pad_template);  // 释放 PadTemplate
+        gst_object_unref(pad_template); // 释放 PadTemplate
         gst_object_unref(data.pipeline);
         return -1;
     }
@@ -254,12 +256,12 @@ int main(int argc, char *argv[])
         gst_object_unref(tee_audio_pad);
         gst_object_unref(tee_video_pad);
 
-        gst_object_unref(pad_template);  // 释放 PadTemplate
+        gst_object_unref(pad_template); // 释放 PadTemplate
         gst_object_unref(data.pipeline);
         return -1;
     }
 
-    gst_object_unref(pad_template);  // 释放 PadTemplate
+    gst_object_unref(pad_template); // 释放 PadTemplate
 
     g_print("Obtained request pad %s for audio branch.\n", gst_pad_get_name(tee_audio_pad));
     g_print("Obtained request pad %s for video branch.\n", gst_pad_get_name(tee_video_pad));
