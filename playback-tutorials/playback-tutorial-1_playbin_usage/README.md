@@ -126,15 +126,15 @@ int main(int argc, char *argv[])
 
 `playbin` 的行为可以通过其 `flags` `属性来改变，flags` 属性可以包含任意组合的 `GstPlayFlags`。
 
-| Flag  | Description |
-| --- | --- |
-| GST_PLAY_FLAG_VIDEO |	启用视频渲染。如果没有设置这个标志，就不会有视频输出。|
-| GST_PLAY_FLAG_AUDIO | 启用音频渲染。如果没有设置这个标志，就不会有音频输出。|
-| GST_PLAY_FLAG_TEXT  | 启用字幕渲染。如果没有设置该标志，视频输出中将不会显示字幕。|
-| GST_PLAY_FLAG_VIS   | 在没有视频流时启用可视化渲染。播放教程6：音频可视化有更详细的介绍。|
-| GST_PLAY_FLAG_DOWNLOAD  | 启用下载模式。如果设置了这个标志，playbin 会尝试下载媒体而不是播放它。|
-| GST_PLAY_FLAG_BUFFERING | 启用缓冲模式。如果设置了这个标志，playbin 会在播放前先缓冲数据，以减少播放时的延迟。|
-| GST_PLAY_FLAG_DEINTERLACE | 如果视频内容是隔行扫描，这个标志会指示播放区在显示视频前将其去交错。|
+| Flag                      | Description                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| GST_PLAY_FLAG_VIDEO       | 启用视频渲染。如果没有设置这个标志，就不会有视频输出。                               |
+| GST_PLAY_FLAG_AUDIO       | 启用音频渲染。如果没有设置这个标志，就不会有音频输出。                               |
+| GST_PLAY_FLAG_TEXT        | 启用字幕渲染。如果没有设置该标志，视频输出中将不会显示字幕。                         |
+| GST_PLAY_FLAG_VIS         | 在没有视频流时启用可视化渲染。播放教程6：音频可视化有更详细的介绍。                  |
+| GST_PLAY_FLAG_DOWNLOAD    | 启用下载模式。如果设置了这个标志，playbin 会尝试下载媒体而不是播放它。               |
+| GST_PLAY_FLAG_BUFFERING   | 启用缓冲模式。如果设置了这个标志，playbin 会在播放前先缓冲数据，以减少播放时的延迟。 |
+| GST_PLAY_FLAG_DEINTERLACE | 如果视频内容是隔行扫描，这个标志会指示播放区在显示视频前将其去交错。                 |
 
 在这里，为了演示目的，启用了音频和视频 并关闭字幕，其余旗帜保持默认状态 值（这也是为什么我们用来读取当前的旗标值的原因 `g_object_get（）` 然后再用 `g_object_set（）` 覆盖）。
 
