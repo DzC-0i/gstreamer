@@ -1,7 +1,7 @@
 .marscode/
 .vscode/
 build/
-.img/
+# .img/
 
 # exe
 *.exe
