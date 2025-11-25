@@ -13,6 +13,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
 # 查找GStreamer音频库
 pkg_check_modules(GSTREAMER_AUDIO REQUIRED gstreamer-audio-1.0)
+# 查找GStreamer视频库
+pkg_check_modules(GSTREAMER_VIDEO REQUIRED gstreamer-video-1.0)
 # 查找GStreamer管道工具库
 pkg_check_modules(GSTREAMER_PBUTILS REQUIRED gstreamer-pbutils-1.0)
 # 查找GTK3库
@@ -98,3 +100,6 @@ target_include_directories(playback-tutorial-3 PUBLIC ${GSTREAMER_AUDIO_INCLUDE_
 
 # 添加数学库
 target_link_libraries(playback-tutorial-3_video PUBLIC m)
+
+target_link_libraries(playback-tutorial-5 PUBLIC ${GSTREAMER_VIDEO_LIBRARIES})
+target_include_directories(playback-tutorial-5 PUBLIC ${GSTREAMER_VIDEO_INCLUDE_DIRS})
