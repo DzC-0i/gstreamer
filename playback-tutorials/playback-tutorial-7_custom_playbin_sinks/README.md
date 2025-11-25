@@ -1,4 +1,4 @@
-# GStreamer 官方教程 playback-tutorial-5 的完整示例
+# GStreamer 官方教程 playback-tutorial-7 的完整示例
 
 原文地址: <https://gstreamer.freedesktop.org/documentation/tutorials/playback/custom-playbin-sinks.html?gi-language=c>
 

@@ -1,4 +1,4 @@
-# GStreamer 官方教程 playback-tutorial-5 的完整示例
+# GStreamer 官方教程 playback-tutorial-6 的完整示例
 
 原文地址: <https://gstreamer.freedesktop.org/documentation/tutorials/playback/audio-visualization.html?gi-language=c>
 
