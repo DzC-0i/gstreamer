@@ -5,12 +5,12 @@
 #include <iostream>
 #include <signal.h>
 
-gboolean running = TRUE;
+GMainLoop *loop;
 
 void handle_signal(int signum)
 {
     g_print("Receive (Ctrl+C), cleanning...\n");
-    running = FALSE;
+    g_main_loop_quit(loop);
 }
 
 /* 外加的一个宏定义, 用于在低版本也能够通过编译情况*/
@@ -94,9 +94,13 @@ int main(int argc, char *argv[])
 
     Gstreamer_HW gst_rtsp_play(url, tcp);
 
-    while(running){
-        g_usleep(1000000);  // 暂停 1000 毫秒，避免 CPU 占用过高
-    }
+    // GStreamer 的 Bus 信号依赖 GLib 的主循环（GMainLoop）分发事件，如果没有启动主循环，信号永远不会触发
+    loop = g_main_loop_new(NULL, FALSE);
+
+    g_main_loop_run(loop); // 阻塞运行，直到调用 g_main_loop_quit
+
+    // 退出时清理
+    g_main_loop_unref(loop);
 
     g_print("Exit\n");
 
@@ -113,8 +117,6 @@ Gstreamer_HW::Gstreamer_HW(const std::string &rtsp_url_, bool use_tcp_)
     memset(&data, 0, sizeof(data));
 
     create_pipeline();
-
-    gst_element_set_state(data.pipline, GST_STATE_PLAYING);
 }
 
 Gstreamer_HW::~Gstreamer_HW()
@@ -304,13 +306,31 @@ void Gstreamer_HW::state_changed_cb(GstBus *bus, GstMessage *msg, CustomData *da
 {
     GstState old_state, new_state, pending_state;
     gst_message_parse_state_changed(msg, &old_state, &new_state, &pending_state);
-    if (GST_MESSAGE_SRC(msg) == GST_OBJECT(data->pipline))
-    {
-        g_print("Pipeline state changed from %s to %s:\n",
-                    gst_state_get_name(old_state), gst_state_get_name(new_state));
 
-        g_print("State set to %s\n", gst_element_state_get_name(new_state));
+    // 打印多个消息
+    // if (GST_MESSAGE_SRC(msg) == GST_OBJECT(data->pipline))
+    // {
+    //     g_print("Pipeline state changed from %s to %s\n",
+    //             gst_state_get_name(old_state), gst_state_get_name(new_state));
+    // }
+
+    const gchar *src_name = GST_OBJECT_NAME(msg->src);
+    const gchar *pipeline_name = GST_OBJECT_NAME(data->pipline);
+
+    // // 打印消息来源（是Pipeline本身，还是子元素如rtspsrc）
+    // g_print("[State Change] Source: %s | Old: %s | New: %s | Pending: %s\n",
+    //         src_name,
+    //         gst_element_state_get_name(old_state),
+    //         gst_element_state_get_name(new_state),
+    //         gst_element_state_get_name(pending_state));
+
+    // 只关注Pipeline自身的“最终状态变更”（过滤子元素和过渡消息）
+    if (g_strcmp0(src_name, pipeline_name) == 0 && old_state != new_state) {
+        g_print("Pipeline state changed from %s to %s\n",
+                gst_element_state_get_name(old_state),
+                gst_element_state_get_name(new_state));
     }
+
 }
 
 bool Gstreamer_HW::create_pipeline()
@@ -392,7 +412,7 @@ bool Gstreamer_HW::create_pipeline()
     g_signal_connect(data.src, "select-stream", G_CALLBACK(on_select_stream), &data);
     g_signal_connect(data.src, "pad-added", G_CALLBACK(on_pad_added), &data);
 
-
+    // GStreamer 的 Bus 信号依赖 GLib 的主循环（GMainLoop）分发事件
     GstBus *bus = gst_element_get_bus(data.pipline);
     gst_bus_add_signal_watch(bus);
     g_signal_connect(G_OBJECT(bus), "message::error", G_CALLBACK(error_cb), &data);
@@ -400,6 +420,9 @@ bool Gstreamer_HW::create_pipeline()
     g_signal_connect(G_OBJECT(bus), "message::state-changed", G_CALLBACK(state_changed_cb), &data);
     // g_signal_connect(G_OBJECT(bus), "message::application", (GCallback)application_cb, &data);
     gst_object_unref(bus);
+
+    /* Start playing the pipeline */
+    gst_element_set_state(data.pipline, GST_STATE_PLAYING);
 
     return true;
 }
