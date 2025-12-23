@@ -155,6 +155,9 @@ void push_thread(PushContext *ctx)
     }
 
     ctx->cap->release();
+    g_main_loop_quit(ctx->loop);
+
+    g_print("Push thread exited\n");
 }
 
 /* ---------------------------------------------------------
